@@ -2,30 +2,37 @@ package com.rr.threadcooperationshared;
 
 public class OnlyMain {
 
-	private static class UseThread extends Thread {
-		
+	 
+	private static class UseThread implements Runnable {
+		private volatile int a = 0;	
 		@Override
 		public void run() {
-			String threadName = getName();
+			a = a + 1;
+			System.out.println(Thread.currentThread().getName() + " "  + a);
 			try {
-				while (!isInterrupted()) {
-					System.out.println(threadName + " I  extend Thread.");
-				}
-				System.out.println(threadName + " interrupt flag is " + isInterrupted());
-			} finally {
-				System.out.println("守护线程中finally不能保证执行");
+				Thread.sleep(100);
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
+			a += 1;
+			System.out.println(Thread.currentThread().getName() + " "  + a);
 		}
+			
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		Thread endThread = new UseThread();
-		// 2.将子线程Thread-0设置为main线程的守护线程，它们就共生死
-		endThread.setDaemon(true);
-		endThread.start();
-		Thread.sleep(20);
-		// 1. 本来main线程执行完了，然后子线程Thread-0由于没有interrupt，会一直执行
-		// endThread.interrupt();
+		UseThread v = new UseThread();
+		
+		Thread t1 = new Thread(v);
+		Thread t2 = new Thread(v);
+		Thread t3 = new Thread(v);
+		Thread t4 = new Thread(v);
+		
+		t1.start();
+		t2.start();
+		t3.start();
+		t4.start();
+		
 	}
 
 }
