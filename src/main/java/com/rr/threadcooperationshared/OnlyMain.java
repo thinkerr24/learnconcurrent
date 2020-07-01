@@ -3,36 +3,29 @@ package com.rr.threadcooperationshared;
 public class OnlyMain {
 
 	private static class UseThread extends Thread {
-
-		public UseThread(String name) {
-			super(name);
-		}
-
+		
 		@Override
 		public void run() {
 			String threadName = getName();
-			while (!isInterrupted()) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					System.out.println(threadName + " interrupt flag is " + isInterrupted());
-					// 方法中发生异常, 线程的中断标志位会被复位成false，如果确实是需要中断线程，要求我们自己在catch语句块里再次调用interrupt()
-					interrupt();
-					e.printStackTrace();
+			try {
+				while (!isInterrupted()) {
+					System.out.println(threadName + " I  extend Thread.");
 				}
-
-				System.out.println(threadName);
+				System.out.println(threadName + " interrupt flag is " + isInterrupted());
+			} finally {
+				System.out.println("守护线程中finally不能保证执行");
 			}
-
-			System.out.println(threadName + " interrupt flag is " + isInterrupted());
 		}
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		Thread endThread = new UseThread("HasInterrputException");
+		Thread endThread = new UseThread();
+		// 2.将子线程Thread-0设置为main线程的守护线程，它们就共生死
+		endThread.setDaemon(true);
 		endThread.start();
 		Thread.sleep(20);
-		endThread.interrupt();
+		// 1. 本来main线程执行完了，然后子线程Thread-0由于没有interrupt，会一直执行
+		// endThread.interrupt();
 	}
 
 }
